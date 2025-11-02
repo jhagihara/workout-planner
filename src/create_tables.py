@@ -1,0 +1,1 @@
+# todo: create tables, need to plan which ones and also use "create table if not exists" to avoid data overwiting and deletion problems
