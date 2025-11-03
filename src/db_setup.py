@@ -14,7 +14,7 @@ def config(filename="database.ini", section="postgresql"):
         for param in params:
             db_info[param[0]] = param[1]
     else:
-        raise Exception("Section {0} not found in the {1} file".format(section, filename))
+        raise Exception("{0} not found in the {1} file".format(section, filename))
 
     return db_info
 
@@ -24,6 +24,7 @@ def connect():
     try:
         params = config()
         print("Connecting to PostgreSQL...")
+        # ** syntax to expand out dict parameters
         conn = psycopg2.connect(**params)
         cur = conn.cursor()
 
