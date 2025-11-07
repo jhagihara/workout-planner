@@ -19,3 +19,8 @@ def test_db():
     except Exception as e:
         return f"Database Connection Fail: {e}"
 
+    # confirming the server is running
+@app.route("/")
+def index():
+    return "Server is running"
+
