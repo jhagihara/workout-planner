@@ -51,6 +51,7 @@ def create_tables():
                     CREATE TABLE IF NOT EXISTS workouts (
                         workout_id SERIAL PRIMARY KEY,
                         session_id INTEGER NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
+                        user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
                         name VARCHAR(255) NOT NULL,
                         sets INTEGER,
                         reps INTEGER,

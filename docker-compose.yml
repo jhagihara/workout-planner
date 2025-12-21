@@ -3,9 +3,9 @@ services:
     image: postgres:15
     container_name: workout_db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: workout_planner
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
@@ -17,11 +17,11 @@ services:
       context: .
       dockerfile: ./src/Dockerfile
     container_name: workout_web
-    command: flask run --host=0.0.0.0
+    command: sh ./start.sh
     environment:
       FLASK_APP: app
       FLASK_ENV: development
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/workout_planner
+      DATABASE_URL: ${DATABASE_URL}
     ports:
       - "5000:5000"
     depends_on:

@@ -1,49 +1,30 @@
+import os
 import psycopg2
-from configparser import ConfigParser
 
-# configuring based on the ini file
-def config(filename="database.ini", section="postgresql"):
-    parser = ConfigParser()
-    parser.read(filename)
 
-    db_info = {}
-    if parser.has_section(section):
-        params = parser.items(section)
-
-        # iterating through the key value pairs from the ini file
-        for param in params:
-            db_info[param[0]] = param[1]
-    else:
-        raise Exception("{0} not found in the {1} file".format(section, filename))
-
-    return db_info
-
-# connecting to postgresql
+# connecting to postgres
+# uses env vars
 def connect():
     conn = None
     try:
-        params = config()
-        print("Connecting to PostgreSQL...")
-        # ** syntax to expand out dict parameters
-        conn = psycopg2.connect(**params)
+        database_url = os.environ["DATABASE_URL"]
+
+        print("Connecting to Postgres...")
+        conn = psycopg2.connect(database_url)
         cur = conn.cursor()
 
-        # printing out the version
-        print("PostgreSQL version: ")
-        cur.execute('SELECT version()')
+        cur.execute("SELECT version();")
         db_version = cur.fetchone()
-        print(db_version)
+        print("PostgreSQL version:", db_version)
 
         cur.close()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
+    except Exception as error:
+        print("Database connection error:", error)
     finally:
         if conn is not None:
             conn.close()
             print("Database connection closed")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     connect()
-
-

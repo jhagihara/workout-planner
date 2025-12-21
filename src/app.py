@@ -1,11 +1,13 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import os
 
-# notes:
+# my notes:
 # 1. uses SQLAlchemy because it's an object relational mapper that can convert data from db -> python
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:your_password@localhost:5432/workout_planner"
+url = os.environ.get("DATABASE_URL")
+app.config['SQLALCHEMY_DATABASE_URI'] = url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -19,7 +21,7 @@ def test_db():
     except Exception as e:
         return f"Database Connection Fail: {e}"
 
-    # confirming the server is running
+# confirming the server is running
 @app.route("/")
 def index():
     return "Server is running"
