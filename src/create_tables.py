@@ -43,9 +43,9 @@ def create_tables():
                     workout_id SERIAL PRIMARY KEY,
                     session_id INTEGER NOT NULL REFERENCES sessions(session_id) ON DELETE CASCADE,
                     user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-                    name VARCHAR(255) NOT NULL,
-                    sets INTEGER,
-                    reps INTEGER,
+                    exercise_name VARCHAR(255) NOT NULL,
+                    num_sets INTEGER,
+                    num_reps INTEGER,
                     weight_lbs NUMERIC,
                     muscle VARCHAR(255) NOT NULL
                 );

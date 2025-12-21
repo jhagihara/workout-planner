@@ -3,6 +3,7 @@ import psycopg2
 
 
 # connecting to postgres
+# tests that the conenction to postgres works before anything
 # uses env vars
 def connect():
     conn = None
