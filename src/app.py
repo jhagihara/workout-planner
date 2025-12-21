@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 import os
 
 # my notes:
@@ -16,7 +17,8 @@ db = SQLAlchemy(app)
 @app.route('/test-db')
 def test_db():
     try:
-        db.session.execute("SELECT 1")
+        # have to wrap it in text()
+        db.session.execute(text("SELECT 1;"))
         return "Database Connection Success"
     except Exception as e:
         return f"Database Connection Fail: {e}"
