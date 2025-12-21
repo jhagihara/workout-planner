@@ -17,7 +17,6 @@ def create_tables():
                     username VARCHAR(255) NOT NULL UNIQUE,
                     password VARCHAR(255) NOT NULL,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-                    split_type VARCHAR(255) NOT NULL,
                     weight_lbs NUMERIC,
                     height_ft NUMERIC,
                     age INTEGER,
