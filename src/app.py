@@ -1,30 +1,39 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 import os
+from db import db
+from models import User
 
 # my notes:
 # 1. uses SQLAlchemy because it's an object relational mapper that can convert data from db -> python
 
-app = Flask(__name__)
-url = os.environ.get("DATABASE_URL")
-app.config['SQLALCHEMY_DATABASE_URI'] = url
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+def create_app():
+    app = Flask(__name__)
+    url = os.environ.get("DATABASE_URL")
+    app.config['SQLALCHEMY_DATABASE_URI'] = url
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+    db.init_app(app)
 
-# '/test-db' calls the function to test the connection to the database
-@app.route('/test-db')
-def test_db():
-    try:
-        # have to wrap it in text()
-        db.session.execute(text("SELECT 1;"))
-        return "Database Connection Success"
-    except Exception as e:
-        return f"Database Connection Fail: {e}"
+    # '/test-db' calls the function to test the connection to the database
+    @app.route('/test-db')
+    def test_db():
+        try:
+            # have to wrap it in text()
+            db.session.execute(text("SELECT 1;"))
+            return "Database Connection Success"
+        except Exception as e:
+            return f"Database Connection Fail: {e}"
 
-# confirming the server is running
-@app.route("/")
-def index():
-    return "Server is running"
+    # home page
+    @app.route("/")
+    def home():
+        users = User.query.all()
+        return jsonify([{"id": u.id, "name": u.name} for u in users])
+
+
+    return app
+
+app = create_app()
 

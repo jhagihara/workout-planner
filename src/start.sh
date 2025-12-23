@@ -1,29 +1,30 @@
 #!/usr/bin/env bash
 set -e
 
-# reaching postgres
-echo "Connecting to Postgres..."
-until python - <<'EOF'
+# check if required tables exist
+TABLES_EXIST=$(python - <<'EOF'
 import os
 import psycopg2
-import time
-
 url = os.environ.get("DATABASE_URL")
-try:
-    psycopg2.connect(url).close()
-    print("Postgres is ready.")
-except Exception:
-    raise SystemExit(1)
+conn = psycopg2.connect(url)
+cur = conn.cursor()
+tables = ['user', 'sessions', 'workouts']  # replace with actual table names
+cur.execute(
+    "SELECT tablename FROM pg_tables WHERE schemaname='public';"
+)
+existing = [row[0] for row in cur.fetchall()]
+conn.close()
+print('yes' if all(t in existing for t in tables) else 'no')
 EOF
-do
-  sleep 1
-done
+)
 
-# running the db_setup.py script and create_tables.py
-echo "Running DB setup and creating tables..."
-python db_setup.py
-python create_tables.py
+if [ "$TABLES_EXIST" = "no" ]; then
+    echo "Tables missing, running DB setup..."
+    python db_setup.py
+    python create_tables.py
+else
+    echo "All tables exist, skipping DB setup."
+fi
 
-# flask
-echo "Starting Flask..."
-exec flask run --host=0.0.0.0
+# start Flask
+exec flask run --host=0.0.0.0 --reload
