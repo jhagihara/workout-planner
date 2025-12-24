@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
+from flask_migrate import Migrate
 import os
 from db import db
 from models import User
@@ -15,6 +16,9 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
+    # added migrations for when I decide to expand the db
+    # connects flask, the db and Alembic
+    Migrate(app, db)
 
     # '/test-db' calls the function to test the connection to the database
     @app.route('/test-db')
@@ -31,6 +35,7 @@ def create_app():
     def home():
         users = User.query.all()
         return jsonify([{"id": u.id, "name": u.name} for u in users])
+        #return "hello"
 
 
     return app

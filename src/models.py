@@ -3,7 +3,7 @@ from db import db
 
 # initializing the postgres database
 # importing from db.py so its unified
-# db = SQLAlchemy()
+
 
 # creating the users class
 class User(db.Model):
@@ -19,7 +19,7 @@ class User(db.Model):
     gender = db.Column(db.String(20))
 
     # a user has many sessions
-    sessions = db.relationship('Session', backref='User', lazy=True)
+    sessions = db.relationship('Session', backref='user', lazy=True)
 
 
 # creating the sessions class
@@ -34,7 +34,7 @@ class Session(db.Model):
     muscle_group = db.Column(db.String(50), nullable=False)
 
     # a session has workouts
-    workouts = db.relationship('Workout', backref='Session', lazy=True)
+    workouts = db.relationship('Workout', backref='session', lazy=True)
 
 # creating the workouts class
 class Workout(db.Model):

@@ -8,7 +8,7 @@ import psycopg2
 url = os.environ.get("DATABASE_URL")
 conn = psycopg2.connect(url)
 cur = conn.cursor()
-tables = ['user', 'sessions', 'workouts']  # replace with actual table names
+tables = ['users', 'sessions', 'workouts']  # replace with actual table names
 cur.execute(
     "SELECT tablename FROM pg_tables WHERE schemaname='public';"
 )
