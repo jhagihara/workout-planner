@@ -33,7 +33,7 @@ class Session(db.Model):
     session_type = db.Column(db.String(50), nullable=False)
     muscle_group = db.Column(db.String(50), nullable=False)
 
-    # a session has workouts
+    # a session has workouts, acts like a list with back references
     workouts = db.relationship('Workout', backref='session', lazy=True)
 
 # creating the workouts class
@@ -48,3 +48,5 @@ class Workout(db.Model):
     num_reps = db.Column(db.Integer)
     weight_lbs = db.Column(db.Numeric)
     muscle = db.Column(db.String(50), nullable=False)
+
+    user = db.relationship('User', backref='workouts', lazy=True)
