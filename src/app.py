@@ -1,10 +1,9 @@
 from flask import Flask, jsonify, request
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from flask_migrate import Migrate
 import os
 from db import db
-from models import User
+from models import User, Session, Workout
 
 # my notes:
 # 1. uses SQLAlchemy because it's an object relational mapper that can convert data from db -> python
@@ -83,6 +82,82 @@ def create_app():
         # if the user isn't found
         return jsonify({"message": "User not found"}), 404
 
+    # POST for adding a session for a specific user
+    @app.route("/sessions", methods=["POST"])
+    def create_session():
+        data = request.get_json()
+
+        # getting the user first
+        user = User.query.get(data['user_id'])
+        if not user:
+            return jsonify({"message": "User not found"}), 404
+
+
+        session_type = data.get("session_type")
+        muscle_group = data.get("muscle_group")
+        duration_mins = data.get("duration_mins")
+
+        new_session = Session(
+            user=user,
+            session_type=session_type,
+            muscle_group=muscle_group,
+            duration_mins=duration_mins
+        )
+
+        try:
+            db.session.add(new_session)
+            db.session.commit()
+            return jsonify({
+                "session_id": new_session.session_id,
+                "user_id": new_session.user_id,
+                "session_type": new_session.session_type,
+                "muscle_group": new_session.muscle_group,
+                "duration_mins": new_session.duration_mins
+            }), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": f"Error creating session: {e}"}), 500
+
+
+    # GET for retrieving all sessions for all users
+    @app.route("/sessions", methods=["GET"])
+    def get_sessions():
+        sessions = Session.query.all()
+
+        result = []
+        for s in sessions:
+            result.append({
+                "session_id": s.session_id,
+                "user_id": s.user_id,
+                "session_type": s.session_type,
+                "muscle_group": s.muscle_group,
+                "duration_mins": s.duration_mins
+            })
+        return jsonify(result)
+
+    # GET for getting all sessions from a specific user
+    @app.route("/users/<int:user_id>/sessions", methods=["GET"])
+    def get_user_sessions(user_id):
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"message": "User not found"}), 404
+
+        # filter session by the user
+        # sessions = Session.query.filter_by(user=user).all()
+        # or can do:
+        sessions = user.sessions
+        result = []
+        for s in sessions:
+            result.append({
+                "session_id": s.session_id,
+                "user_id": s.user_id,
+                "session_type": s.session_type,
+                "muscle_group": s.muscle_group,
+                "duration_mins": s.duration_mins
+            })
+        return jsonify(result)
+
+
     # '/test-db' calls the function to test the connection to the database
     @app.route('/test-db')
     def test_db():
@@ -96,8 +171,6 @@ def create_app():
     # home page
     @app.route("/")
     def home():
-        users = User.query.all()
-        #return jsonify([{"id": u.user_id, "name": u.username} for u in users])
         return "hello"
 
 
