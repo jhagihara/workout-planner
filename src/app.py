@@ -157,6 +157,94 @@ def create_app():
             })
         return jsonify(result)
 
+    # POST for creating a workout for a specific session
+    @app.route("/workouts", methods=["POST"])
+    def create_workout():
+        data = request.get_json()
+
+        # getting the user and session first
+        user = User.query.get(data['user_id'])
+        if not user:
+            return jsonify({"message": "User not found"}), 404
+        session = Session.query.get(data['session_id'])
+        if not session:
+            return jsonify({"message": "Session not found"}), 404
+        if session.user_id != user.user_id:
+            return jsonify({"message": "Session does not belong to user"}), 400
+
+        exercise_name = data.get("exercise_name")
+        num_sets = data.get("num_sets")
+        num_reps = data.get("num_reps")
+        weight_lbs = data.get("weight_lbs")
+        muscle = data.get("muscle")
+
+        new_workout = Workout(
+            user=user,
+            session=session,
+            exercise_name=exercise_name,
+            num_sets=num_sets,
+            num_reps=num_reps,
+            weight_lbs=weight_lbs,
+            muscle=muscle
+        )
+
+        try:
+            db.session.add(new_workout)
+            db.session.commit()
+            return jsonify({
+                "workout_id": new_workout.workout_id,
+                "session_id": new_workout.session_id,
+                "user_id": new_workout.user_id,
+                "exercise_name": new_workout.exercise_name,
+            }), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": f"Error creating workout: {e}"}), 500
+
+    # GET for retrieving all workouts
+    @app.route("/workouts", methods=["GET"])
+    def get_workouts():
+        workouts = Workout.query.all()
+
+        result = []
+        for w in workouts:
+            result.append({
+                "workout_id": w.workout_id,
+                "session_id": w.session_id,
+                "user_id": w.user_id,
+                "exercise_name": w.exercise_name,
+                "num_sets": w.num_sets,
+                "num_reps": w.num_reps,
+                "weight_lbs": str(w.weight_lbs),
+                "muscle": w.muscle
+            })
+
+        return jsonify(result)
+
+
+    # GET for retrieving all workouts for a session
+    @app.route("/sessions/<int:session_id>/workouts", methods=["GET"])
+    def get_session_workouts(session_id):
+        session = Session.query.get(session_id)
+        if not session:
+            return jsonify({"message": "Session not found"}), 404
+
+        # retrieve all workouts for that session
+        workouts = session.workouts
+        result = []
+        for w in workouts:
+            result.append({
+                "workout_id": w.workout_id,
+                "session_id": w.session_id,
+                "user_id": w.user_id,
+                "exercise_name": w.exercise_name,
+                "num_sets": w.num_sets,
+                "num_reps": w.num_reps,
+                "weight_lbs": str(w.weight_lbs),
+                "muscle": w.muscle
+            })
+
+        return jsonify(result)
 
     # '/test-db' calls the function to test the connection to the database
     @app.route('/test-db')
